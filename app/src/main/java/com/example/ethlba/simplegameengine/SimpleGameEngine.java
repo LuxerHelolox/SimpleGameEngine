@@ -2,7 +2,6 @@ package com.example.ethlba.simplegameengine;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -13,6 +12,11 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.content.res.AssetFileDescriptor;
+import android.content.res.AssetManager;
+import android.media.AudioManager;
+import java.io.IOException;
+import android.media.SoundPool;
 
 public class SimpleGameEngine extends AppCompatActivity {
 
@@ -20,6 +24,11 @@ public class SimpleGameEngine extends AppCompatActivity {
     // It will also hold the logic of the game
     // and respond to screen touches as well
     GameView gameView;
+    int soundID = -1;
+
+    // This SoundPool is deprecated but don't worry
+    SoundPool soundPool;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +38,8 @@ public class SimpleGameEngine extends AppCompatActivity {
         gameView = new GameView(this);
         setContentView(gameView);
 
+        soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC,0);
+        soundID = loadsound(soundPool);
     }
 
     // Here is our implementation of GameView
@@ -127,7 +138,8 @@ public class SimpleGameEngine extends AppCompatActivity {
                 bobXPosition = bobXPosition + (walkSpeedPerSecond / fps);
 
                 if (bobXPosition > 1000 || bobXPosition < 0) {
-                    walkSpeedPerSecond = - walkSpeedPerSecond;}
+                    walkSpeedPerSecond = - walkSpeedPerSecond;
+                    soundPool.play(soundID, 1, 1, 0, 0, 1);}
             }
 
         }
@@ -226,5 +238,23 @@ public class SimpleGameEngine extends AppCompatActivity {
 
         // Tell the gameView pause method to execute
         gameView.pause();
+    }
+
+    // This method only loads the sound clip
+    int loadsound(SoundPool soundPool) {
+        try{
+            // Create objects of the 2 required classes
+            AssetManager assetManager = this.getAssets();
+            AssetFileDescriptor descriptor;
+
+            // Load our fx in memory ready for use
+            descriptor = assetManager.openFd("warp.ogg");
+            return soundPool.load(descriptor, 0);
+
+        }catch(IOException e){
+            // Print an error message to the console
+            Log.e("error", "failed to load sound files");
+            return -1;
+        }
     }
 }
