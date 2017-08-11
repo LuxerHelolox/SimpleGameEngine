@@ -80,10 +80,20 @@ public class SimpleGameEngine extends AppCompatActivity {
         boolean isMoving = false;
 
         // He can walk at 150 pixels per second
-        float walkSpeedPerSecond = 150;
+        float walkSpeedPerSecond = 300;
 
         // He starts 10 pixels from the left
         float bobXPosition = 10;
+
+        float bobYPosition = 10;
+
+        // X position of the finger
+        float fingerX;
+
+        // Y position of the finger
+        float fingerY;
+
+
 
         // When the we initialize (call new()) on gameView
         // This special constructor method runs
@@ -135,7 +145,12 @@ public class SimpleGameEngine extends AppCompatActivity {
             // If bob is moving (the player is touching the screen)
             // then move him to the right based on his target speed and the current fps.
             if (isMoving) {
-                bobXPosition = bobXPosition + (walkSpeedPerSecond / fps);
+                int delta = 1;
+                if (fingerX < bobXPosition) delta = -1;
+                bobXPosition = bobXPosition + delta * (walkSpeedPerSecond / fps);
+                delta = 1;
+                if (fingerY < bobYPosition) delta = -1;
+                bobYPosition = bobYPosition + delta * (walkSpeedPerSecond / fps);
 
                 if (bobXPosition > 1000 || bobXPosition < 0) {
                     walkSpeedPerSecond = - walkSpeedPerSecond;
@@ -160,13 +175,13 @@ public class SimpleGameEngine extends AppCompatActivity {
                 paint.setColor(Color.argb(255, 249, 129, 0));
 
                 // Make the text a bit bigger
-                paint.setTextSize(45);
+               //  paint.setTextSize(45);
 
                 // Display the current fps on the screen
-                canvas.drawText("FPS:" + fps + "  X:" + bobXPosition, 20, 40, paint);
+                // canvas.drawText("FPS:" + fps + "  X:" + bobXPosition + "  fingerX:" + fingerX + "  fingerY:" + fingerY, 20, 40, paint);
 
-                // Draw bob at bobXPosition, 200 pixels
-                canvas.drawBitmap(bitmapBob, bobXPosition, 200, paint);
+                // Draw bob at bobXPosition, bobYPosition pixels
+                canvas.drawBitmap(bitmapBob, bobXPosition, bobYPosition, paint);
 
                 // Draw everything to the screen
                 // and unlock the drawing surface
@@ -207,7 +222,14 @@ public class SimpleGameEngine extends AppCompatActivity {
 
                     // Set isMoving so Bob is moved in the update method
                     isMoving = true;
+                    fingerX = motionEvent.getX();
+                    fingerY = motionEvent.getY();
+                    break;
 
+                //Player moved to finger
+                case MotionEvent.ACTION_MOVE:
+                    fingerX = motionEvent.getX();
+                    fingerY = motionEvent.getY();
                     break;
 
                 // Player has removed finger from screen
